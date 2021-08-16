@@ -4,11 +4,6 @@ import mediapipe as mp
 import sys
 
 
-'''
-https://google.github.io/mediapipe/solutions/pose#python-solution-api
-'''
-
-
 def draw_landmarks(frame, landmarks, visibility_threshold=0.5):
     w, h = frame.shape[1], frame.shape[0]
 
