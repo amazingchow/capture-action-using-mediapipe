@@ -100,6 +100,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--video_device",             type=int,   default=0)
     parser.add_argument("--video_file",               type=str,   default="")
+    parser.add_argument("--video_output_file",        type=str,   default="./output.mp4")
     parser.add_argument("--video_width",              type=int,   default=0)
     parser.add_argument("--video_height",             type=int,   default=0)
     parser.add_argument("--static_image_mode",        type=bool,  default=False)
@@ -109,7 +110,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # init video capture handler
-    cap = object
+    cap = object()
+    out = object()
     if args.video_file != "":
         cap = cv.VideoCapture(args.video_file)
     else:
@@ -120,12 +122,15 @@ if __name__ == "__main__":
     else:
         w = cap.get(cv.CAP_PROP_FRAME_WIDTH)
         h = cap.get(cv.CAP_PROP_FRAME_HEIGHT)
+        fps = cap.get(cv.CAP_PROP_FPS)
         if args.video_width > 0 and args.video_height > 0:
             w = args.video_width
             cap.set(cv.CAP_PROP_FRAME_WIDTH, w)
             h = args.video_height
             cap.set(cv.CAP_PROP_FRAME_HEIGHT, h)
-        print("Video <w: {}, h: {}, fps: {}>".format(w, h, cap.get(cv.CAP_PROP_FPS)))
+        print("Video <w: {}, h: {}, fps: {}>".format(w, h, fps))
+        out = cv.VideoWriter(args.video_output_file, apiPreference=0, 
+            fourcc=cv.VideoWriter_fourcc(*'MJPG'), fps=fps, frameSize=(int(w), int(h)))
 
     mp_pose = mp.solutions.pose
     pose = mp_pose.Pose(
@@ -152,8 +157,10 @@ if __name__ == "__main__":
             image = draw(image, results.pose_landmarks)
         cv.imshow("Animation", image)
 
+        out.write(image)
         if cv.waitKey(5) & 0xFF == 27:
             break
 
     cap.release()
+    out.release()
     cv.destroyAllWindows()
