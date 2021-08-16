@@ -8,7 +8,7 @@ import sys
 import time
 
 
-def transform(image, landmarks, color=(255, 255, 255), bg_color=(0, 0, 0), visibility_threshold=0.3):
+def transform(image, landmarks, color=(0, 0, 0), bg_color=(255, 255, 255, 0), visibility_threshold=0.3):
     w, h = image.shape[1], image.shape[0]
 
     # set the background
@@ -138,17 +138,18 @@ if __name__ == "__main__":
         image = np.zeros((int(cap.get(cv.CAP_PROP_FRAME_HEIGHT)), int(cap.get(cv.CAP_PROP_FRAME_WIDTH)), 3), np.uint8)
         frame_idx = 0
         while 1:
-            ret, frame = cap.read()
+            ret, frame_bgr = cap.read()
             if not ret:
                 print("Cannot receive frame, exiting ...")
                 break
+            frame_idx += 1
 
             st = time.time()
-            frame = cv.cvtColor(cv.flip(frame, 1), cv.COLOR_BGR2RGB)
-            frame.flags.writeable = False
-            results = pose.process(frame)
-            frame.flags.writeable = True
-            frame = cv.cvtColor(frame, cv.COLOR_RGB2BGR)
+            frame_rgb = cv.cvtColor(cv.flip(frame_bgr, 1), cv.COLOR_BGR2RGB)
+            frame_rgb.flags.writeable = False
+            results = pose.process(frame_rgb)
+            frame_rgb.flags.writeable = True
+            frame_bgr = cv.cvtColor(frame_rgb, cv.COLOR_RGB2BGR)
             if results.pose_landmarks is not None:
                 image = transform(image, results.pose_landmarks)
             ed = time.time()
