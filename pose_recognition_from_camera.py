@@ -142,6 +142,7 @@ if __name__ == "__main__":
             if not ret:
                 print("Cannot receive frame, exiting ...")
                 break
+            frame_idx += 1
 
             st = time.time()
             frame = cv.cvtColor(cv.flip(frame, 1), cv.COLOR_BGR2RGB)
